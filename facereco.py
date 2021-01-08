@@ -5,7 +5,8 @@ import numpy as np
 import time
 import datetime
 import subprocess
-import bot
+import gtts
+import vlc
 
 
 # carrega webcam
@@ -53,7 +54,9 @@ process_this_frame = True
 topic = "mytopic"
 host = "127.0.0.1"
 # contador de desconhecidos
-cont = 0
+cont1 = 0
+# contador conhecidos
+cont2 = 0
 
 while True:
     # obtem um frame unico do video
@@ -89,16 +92,25 @@ while True:
             if True not in matches:
                 pub_msg = (f"{name} - {pub_date}")
                 publish.single(topic, pub_msg, hostname=host)
-                cont = (cont + 1)
+                cont1 = (cont1 + 1)
                 # se o contador atingir o valor executa o bot
-                if cont == 30:
+                if cont1 == 30:
                     #gambiarra para excutar o bot, precisa de modificações para funcionar como um modulo
                     subprocess.check_output("/usr/bin/python ./bot.py ", shell=True)
-                    cont = 0
+                    cont1 = 0
                 time.sleep(1)
             elif True in matches:
                 pub_msg = (f"{name} - {pub_date}")
                 publish.single(topic, pub_msg, hostname=host)
+                cont2 = (cont2 + 1)
+                if cont2 == 10:
+                    publish.single(topic,f"{name}, está na porta.", hostname=host)
+                    tss = gtts.gTTS(f"{name}, está na porta.", lang="pt-br")
+                    tss.save("buffer.mp3")
+                    p = vlc.MediaPlayer('./buffer.mp3')
+                    p.play()
+                    time.sleep(3)
+                    cont2 = 0
                 time.sleep(1)
             else:
                 pass

@@ -5,9 +5,9 @@ import time
 import multiprocessing
 
 # token to bot
-token = 'TOKEN'
+token = '1550877121:AAFrs14q7Usj9fm9EH6GxXRXuFFzK6Ks6TY'
 # id do chat da pessoa que vai receber a mensagem
-chat_id = 'ID'
+chat_id = '1281004814'
 
 # mensagem a ser enviada
 msg = "ALERTA!! DESCONHECIDO!"
