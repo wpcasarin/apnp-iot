@@ -3,6 +3,9 @@ import face_recognition as fr
 import cv2 as cv
 import numpy as np
 import time
+import datetime
+import subprocess
+import bot
 
 
 # carrega webcam
@@ -49,6 +52,8 @@ process_this_frame = True
 # variaveis mqtt
 topic = "mytopic"
 host = "127.0.0.1"
+# contador de desconhecidos
+cont = 0
 
 while True:
     # obtem um frame unico do video
@@ -76,12 +81,24 @@ while True:
             if matches[best_match_index]:
                 name = known_face_names[best_match_index]
 
+            current_date = datetime.datetime.now()
+            pub_date = str(
+                f"{current_date.hour}:{current_date.minute}:{current_date.second}")
+
             # publica em um broker mqtt o nome da pessoa ou se ela é desconhecida
             if True not in matches:
-                publish.single(topic, name, hostname=host)
+                pub_msg = (f"{name} - {pub_date}")
+                publish.single(topic, pub_msg, hostname=host)
+                cont = (cont + 1)
+                # se o contador atingir o valor executa o bot
+                if cont == 30:
+                    #gambiarra para excutar o bot, precisa de modificações para funcionar como um modulo
+                    subprocess.check_output("/usr/bin/python ./bot.py ", shell=True)
+                    cont = 0
                 time.sleep(1)
             elif True in matches:
-                publish.single(topic, name, hostname=host)
+                pub_msg = (f"{name} - {pub_date}")
+                publish.single(topic, pub_msg, hostname=host)
                 time.sleep(1)
             else:
                 pass
